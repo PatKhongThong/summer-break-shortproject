@@ -1,9 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_CONFIG } from "./config";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+// Read from config file first, otherwise fall back to environment variables
+const supabaseUrl =
+  SUPABASE_CONFIG.url && SUPABASE_CONFIG.url !== "your-supabase-project-url-here"
+    ? SUPABASE_CONFIG.url
+    : (process.env.NEXT_PUBLIC_SUPABASE_URL || "");
 
-// Validate that the URL is a proper HTTP/HTTPS endpoint and not a placeholder template
+const supabaseAnonKey =
+  SUPABASE_CONFIG.anonKey && SUPABASE_CONFIG.anonKey !== "your-supabase-anon-key-here"
+    ? SUPABASE_CONFIG.anonKey
+    : (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "");
+
+// Validate that the URL is a proper HTTP/HTTPS endpoint
 const isUrlValid = (url: string) => {
   return (
     (url.startsWith("http://") || url.startsWith("https://")) &&
