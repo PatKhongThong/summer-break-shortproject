@@ -147,3 +147,36 @@ export default function MyClientComponent() {
   );
 }
 ```
+
+---
+
+## 🔌 Skill 6: Resilient Supabase Integration with Local Fallback
+When building frontends that query cloud databases like Supabase, missing env keys (e.g. before the user connects them, or in CI/CD pipeline builds) will crash the application.
+
+### Core Technique
+Implement a dual-state fetcher that checks configurations and handles network or table absence errors cleanly:
+```typescript
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+
+export async function fetchLandListings() {
+  if (!isSupabaseConfigured) {
+    console.warn("Supabase credentials missing. Utilizing mock database.");
+    return { data: mockListings, source: "mock" };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("land_listings")
+      .select("*")
+      .order("price", { ascending: true });
+
+    if (error) throw error;
+    return { data, source: "supabase" };
+  } catch (err) {
+    console.error("Supabase query failed, falling back to mock listings: ", err);
+    return { data: mockListings, source: "fallback" };
+  }
+}
+```
+This guarantees zero crashes and provides immediate feedback on how to fix setup issues.
+
